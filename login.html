@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Masuk — eLearning</title>
+    <style>
+        :root{--bg:#f5f7fb;--card:#fff;--accent:#2563eb;--danger:#dc2626}
+        html,body{height:100%}
+        body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#eef2ff 0%,var(--bg)100%);display:flex;align-items:center;justify-content:center;padding:24px}
+        .card{width:100%;max-width:420px;background:var(--card);padding:28px;border-radius:12px;box-shadow:0 6px 20px rgba(20,20,40,.08)}
+        h1{margin:0 0 8px;font-size:20px}
+        p.lead{margin:0 0 20px;color:#475569;font-size:14px}
+        label{display:block;font-size:13px;margin-bottom:6px;color:#0f172a}
+        input[type="text"],input[type="password"]{width:100%;padding:10px 12px;border:1px solid #e6edf3;border-radius:8px;font-size:14px;box-sizing:border-box}
+        .row{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:12px 0}
+        .actions{display:flex;gap:8px;align-items:center}
+        button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer}
+        button:disabled{opacity:.6;cursor:wait}
+        .link{background:transparent;border:0;color:var(--accent);cursor:pointer}
+        .error{color:var(--danger);font-size:13px;margin-top:10px}
+        .info{font-size:13px;color:#475569;margin-top:10px}
+        .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+    </style>
+</head>
+<body>
+    <main class="card" role="main">
+        <h1>Masuk ke eLearning</h1>
+        <p class="lead">Masukkan kredensial Anda untuk melanjutkan.</p>
+
+        <form id="loginForm" autocomplete="on" novalidate>
+            <div>
+                <label for="username">Email atau Username</label>
+                <input id="username" name="username" type="text" inputmode="email" required placeholder="email@domain.com atau username" />
+            </div>
+
+            <div style="margin-top:12px;">
+                <label for="password">Kata Sandi</label>
+                <input id="password" name="password" type="password" required minlength="6" placeholder="Masukkan kata sandi" />
+            </div>
+
+            <div class="row" style="margin-top:12px;">
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px">
+                    <input id="remember" name="remember" type="checkbox" />
+                    <span>Ingat saya</span>
+                </label>
+                <button type="button" class="link" id="forgotBtn">Lupa kata sandi?</button>
+            </div>
+
+            <div class="row" style="margin-top:16px;">
+                <div class="actions" style="flex:1">
+                    <button id="submitBtn" type="submit">Masuk</button>
+                </div>
+            </div>
+
+            <div id="msg" aria-live="polite" class="info"></div>
+        </form>
+    </main>
+
+    <script>
+        // login.html — contoh fitur login (client-side). 
+        // Ganti fetch URL dengan endpoint server yang valid (mis. /api/login).
+        (function () {
+            const form = document.getElementById('loginForm');
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const submitBtn = document.getElementById('submitBtn');
+            const msg = document.getElementById('msg');
+            const forgotBtn = document.getElementById('forgotBtn');
+
+            forgotBtn.addEventListener('click', () => {
+                alert('Fitur pemulihan kata sandi belum diaktifkan. Silakan hubungi admin.');
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                msg.textContent = '';
+                if (!form.reportValidity()) return;
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Memproses...';
+
+                const payload = {
+                    username: username.value.trim(),
+                    password: password.value
+                };
+
+                try {
+                    // Contoh: panggil endpoint nyata (uncomment & sesuaikan)
+                    /*
+                    const res = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {'Content-Type':'application/json'},
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error('Kredensial salah');
+                    const data = await res.json();
+                    // simpan token jika diberikan
+                    localStorage.setItem('token', data.token);
+                    window.location.href = '/dashboard.html';
+                    */
+
+                    // Demo fallback (hapus pada produksi). Username: admin, password: admin123
+                    await new Promise(r => setTimeout(r, 700)); // simulasi delay
+                    if ((payload.username === 'admin' || payload.username === 'admin@domain.com') && payload.password === 'admin123') {
+                        if (document.getElementById('remember').checked) localStorage.setItem('savedUser', payload.username);
+                        msg.style.color = '';
+                        msg.textContent = 'Berhasil masuk. Mengalihkan...';
+                        setTimeout(() => window.location.href = 'dashboard.html', 800);
+                    } else {
+                        throw new Error('Username atau kata sandi tidak cocok.');
+                    }
+                } catch (err) {
+                    msg.style.color = 'var(--danger)';
+                    msg.textContent = err.message || 'Terjadi kesalahan. Coba lagi.';
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Masuk';
+                }
+            });
+
+            // Prefill jika user dipilih "ingat saya" sebelumnya
+            window.addEventListener('load', () => {
+                const saved = localStorage.getItem('savedUser');
+                if (saved) {
+                    username.value = saved;
+                    document.getElementById('remember').checked = true;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
