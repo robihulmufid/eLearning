@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>eLearning - Dashboard</title>
+    <meta name="description" content="Tampilan eLearning sederhana: dashboard, kursus, progress, dan profil." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#0f1724;
+            --card:#0b1220;
+            --muted:#94a3b8;
+            --accent:#4f46e5;
+            --accent-2:#06b6d4;
+            --glass: rgba(255,255,255,0.03);
+            --success:#16a34a;
+            color-scheme: dark;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+            background:linear-gradient(180deg,var(--bg),#071025 140%);
+            color:#e6eef8;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            padding:24px;
+        }
+
+        .app{
+            display:grid;
+            grid-template-columns:260px 1fr;
+            gap:20px;
+            max-width:1200px;
+            margin:0 auto;
+            align-items:start;
+        }
+
+        /* SIDEBAR */
+        .sidebar{
+            background:linear-gradient(180deg,var(--card),#071229);
+            border-radius:12px;
+            padding:18px;
+            height:calc(100vh - 48px);
+            position:sticky;
+            top:24px;
+            overflow:auto;
+            box-shadow:0 6px 30px rgba(2,6,23,0.6);
+        }
+        .brand{
+            display:flex;
+            gap:12px;
+            align-items:center;
+            margin-bottom:18px;
+        }
+        .logo{
+            width:44px;height:44px;border-radius:10px;
+            background:linear-gradient(135deg,var(--accent),var(--accent-2));
+            display:flex;align-items:center;justify-content:center;font-weight:700;
+            box-shadow:0 6px 18px rgba(79,70,229,0.18);
+        }
+        .brand h1{font-size:16px;margin:0}
+        .nav{margin-top:12px}
+        .nav a{
+            display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;color:var(--muted);
+            text-decoration:none;font-weight:500;margin-bottom:6px;
+        }
+        .nav a:hover{background:var(--glass);color:#fff}
+        .nav a.active{background:linear-gradient(90deg,rgba(79,70,229,0.18),rgba(6,182,212,0.06));color:#fff}
+
+        .profile{
+            margin-top:18px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);display:flex;gap:12px;align-items:center;
+        }
+        .avatar{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#1f2937,#111827);display:flex;align-items:center;justify-content:center;font-weight:700}
+        .profile .meta{flex:1}
+        .meta small{display:block;color:var(--muted);font-size:12px}
+
+        /* MAIN */
+        .main{
+            min-height:80vh;
+        }
+        .topbar{
+            display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px;
+        }
+        .search{
+            display:flex;gap:8px;align-items:center;background:var(--card);padding:10px;border-radius:12px;flex:1;
+        }
+        .search input{
+            background:transparent;border:0;outline:0;color:inherit;font-size:14px;width:100%;
+        }
+        .actions{display:flex;gap:8px;align-items:center}
+        .btn{
+            background:linear-gradient(90deg,var(--accent),var(--accent-2));
+            padding:10px 14px;border-radius:10px;color:white;border:0;font-weight:600;cursor:pointer;
+        }
+        .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+        .stat{
+            background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+            padding:14px;border-radius:10px;
+        }
+        .stat h3{margin:0;font-size:20px}
+        .stat p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+        .section{
+            margin-bottom:18px;
+        }
+        .section h2{margin:0 0 12px 0;font-size:18px}
+        .courses{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:12px;
+        }
+        .card{
+            background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+            padding:12px;border-radius:12px;
+            display:flex;flex-direction:column;gap:10px;
+        }
+        .card .thumb{
+            height:110px;border-radius:8px;background:linear-gradient(135deg,#111827,#0b1220);
+            display:flex;align-items:flex-end;padding:10px;color:#fff;font-weight:700;
+            box-shadow:inset 0 -40px 40px rgba(0,0,0,0.25);
+        }
+        .card h3{margin:0;font-size:15px}
+        .card p{margin:6px 0 0;color:var(--muted);font-size:13px;flex:1}
+        .progress{
+            height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;
+        }
+        .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));}
+
+        /* mini list */
+        .list{display:flex;flex-direction:column;gap:8px}
+        .list-item{display:flex;gap:10px;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)}
+        .list-item small{color:var(--muted)}
+
+        /* footer */
+        footer{opacity:0.7;font-size:13px;color:var(--muted);text-align:center;margin-top:24px;padding-bottom:24px}
+
+        /* responsive */
+        @media (max-width:900px){
+            .app{grid-template-columns:1fr; padding-bottom:60px}
+            .sidebar{position:relative;height:auto;top:0;display:none}
+            .sidebar.open{display:block;margin-bottom:12px}
+            .topbar{flex-direction:column;align-items:stretch;gap:12px}
+        }
+
+        /* tiny helpers */
+        .muted{color:var(--muted);font-size:13px}
+        .chip{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:999px;font-size:12px}
+    </style>
+</head>
+<body>
+    <div class="app" id="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="logo">EL</div>
+                <div>
+                    <h1>eLearning</h1>
+                    <small class="muted">Belajar kapan saja</small>
+                </div>
+            </div>
+
+            <nav class="nav" aria-label="main">
+                <a href="#" class="active">Dashboard</a>
+                <a href="#">Kursus Saya</a>
+                <a href="#">Kategori</a>
+                <a href="#">Progress</a>
+                <a href="#">Pengaturan</a>
+            </nav>
+
+            <div class="profile" style="margin-top:12px">
+                <div class="avatar">PL</div>
+                <div class="meta">
+                    <div style="font-weight:600">Pensi Ler</div>
+                    <small>Mahasiswa • Level 3</small>
+                </div>
+                <div class="chip">Pro</div>
+            </div>
+
+            <div style="margin-top:12px">
+                <h4 style="margin:6px 0 8px 0;font-size:13px">Rekomendasi</h4>
+                <div class="list">
+                    <div class="list-item">
+                        <div style="width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700">JS</div>
+                        <div style="flex:1">
+                            <div style="font-weight:600">JavaScript Dasar</div>
+                            <small class="muted">12 modul • 3 jam</small>
+                        </div>
+                        <div class="muted">40%</div>
+                    </div>
+
+                    <div class="list-item">
+                        <div style="width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#06b6d4,#0ea5a8);display:flex;align-items:center;justify-content:center;font-weight:700">UI</div>
+                        <div style="flex:1">
+                            <div style="font-weight:600">Desain UI/UX</div>
+                            <small class="muted">8 modul • 2 jam</small>
+                        </div>
+                        <div class="muted">20%</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="topbar">
+                <div style="display:flex;gap:12px;flex:1;align-items:center">
+                    <button id="toggleSidebar" class="btn" aria-expanded="true" title="Toggle sidebar" style="background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px">☰</button>
+
+                    <div class="search" role="search" aria-label="Cari kursus">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:0.7"><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"/></svg>
+                        <input id="q" placeholder="Cari kursus, topik, instruktur..." />
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <div class="muted" style="font-size:13px">Halo, Pensi</div>
+                    <button class="btn" id="newCourseBtn">Mulai Kursus</button>
+                </div>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat">
+                    <h3>8</h3>
+                    <p>Kursus Aktif</p>
+                </div>
+                <div class="stat">
+                    <h3>28</h3>
+                    <p>Modul Selesai</p>
+                </div>
+                <div class="stat">
+                    <h3>72%</h3>
+                    <p>Rata-rata Progress</p>
+                </div>
+                <div class="stat">
+                    <h3>4.9</h3>
+                    <p>Nilai Rata-rata</p>
+                </div>
+            </div>
+
+            <section class="section">
+                <h2>Sedang Dipelajari</h2>
+                <div class="courses" id="courses">
+                    <article class="card" data-id="1">
+                        <div class="thumb" style="background:linear-gradient(135deg,#7c3aed,#ef4444)">
+                            JavaScript Modern
+                        </div>
+                        <h3>JavaScript Modern untuk Pemula</h3>
+                        <p>Pelajari dasar JS, DOM, dan cara membuat aplikasi web interaktif.</p>
+                        <div class="progress" aria-hidden="true"><i style="width:40%"></i></div>
+                        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                            <small class="muted">40% selesai</small>
+                            <button class="btn" onclick="openCourse(1)" style="padding:6px 10px;font-size:13px">Lanjutkan</button>
+                        </div>
+                    </article>
+
+                    <article class="card" data-id="2">
+                        <div class="thumb" style="background:linear-gradient(135deg,#06b6d4,#0ea5a8)">
+                            UI/UX
+                        </div>
+                        <h3>Dasar Desain UI/UX</h3>
+                        <p>Prinsip desain, prototyping, dan handoff untuk developer.</p>
+                        <div class="progress" aria-hidden="true"><i style="width:20%"></i></div>
+                        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                            <small class="muted">20% selesai</small>
+                            <button class="btn" onclick="openCourse(2)" style="padding:6px 10px;font-size:13px">Lanjutkan</button>
+                        </div>
+                    </article>
+
+                    <article class="card" data-id="3">
+                        <div class="thumb" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">
+                            Data
+                        </div>
+                        <h3>Analisis Data Dasar</h3>
+                        <p>Pengenalan statistik dasar dan visualisasi data.</p>
+                        <div class="progress" aria-hidden="true"><i style="width:60%"></i></div>
+                        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                            <small class="muted">60% selesai</small>
+                            <button class="btn" onclick="openCourse(3)" style="padding:6px 10px;font-size:13px">Lanjutkan</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Rekomendasi untuk Anda</h2>
+                <div class="courses">
+                    <article class="card">
+                        <div class="thumb" style="background:linear-gradient(135deg,#0ea5a8,#06b6d4)">
+                            PY
+                        </div>
+                        <h3>Python untuk Pemula</h3>
+                        <p>Belajar bahasa Python dan automasi sederhana.</p>
+                        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                            <small class="muted">Gratis • 10 modul</small>
+                            <button class="btn" onclick="alert('Daftar kursus: Python')">Daftar</button>
+                        </div>
+                    </article>
+
+                    <article class="card">
+                        <div class="thumb" style="background:linear-gradient(135deg,#7c3aed,#4f46e5)">
+                            DB
+                        </div>
+                        <h3>Basis Data & SQL</h3>
+                        <p>Konsep database relasional dan kueri SQL dasar.</p>
+                        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                            <small class="muted">Berbayar • 6 modul</small>
+                            <button class="btn" onclick="alert('Daftar kursus: SQL')">Daftar</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <footer>© 2025 eLearning • Dibuat untuk contoh tampilan</footer>
+        </main>
+    </div>
+
+    <script>
+        // Minimal interactivity
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const newCourseBtn = document.getElementById('newCourseBtn');
+
+        toggleBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 900) {
+                sidebar.classList.toggle('open');
+                toggleBtn.setAttribute('aria-expanded', sidebar.classList.contains('open'));
+            } else {
+                // collapse / expand by switching active class
+                sidebar.classList.toggle('collapsed');
+            }
+        });
+
+        newCourseBtn.addEventListener('click', () => {
+            alert('Arahkan ke halaman penjelasan kursus baru atau pilihan pembelajaran.');
+        });
+
+        function openCourse(id){
+            // contoh: dapat mengganti navigasi ke halaman kursus
+            alert('Buka kursus dengan id: ' + id);
+        }
+
+        // keyboard accessible search suggestion (basic)
+        const q = document.getElementById('q');
+        q.addEventListener('keydown', (e)=>{
+            if(e.key === 'Enter'){
+                alert('Cari: ' + q.value);
+            }
+        });
+
+        // simple fake data load (for demo)
+        document.addEventListener('DOMContentLoaded', ()=>{
+            // could fetch real data here
+        });
+    </script>
+</body>
+</html></div></article></div>
